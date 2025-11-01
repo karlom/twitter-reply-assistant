@@ -146,7 +146,7 @@ export class TwitterInjector {
     // 等待一小段时间让工具栏渲染
     setTimeout(() => {
       this.injectButton(dialog, replyBox, tweetText || '');
-    }, 300);
+    }, 500); // 增加等待时间到 500ms
   }
 
   /**
@@ -159,12 +159,6 @@ export class TwitterInjector {
   ): void {
     // 获取工具栏
     const toolbar = TwitterDOM.getToolbarFromReplyDialog(dialog);
-    if (!toolbar) {
-      console.warn('[Twitter Injector] 未找到工具栏');
-      return;
-    }
-
-    console.log('[Twitter Injector] 找到工具栏，开始注入 AI 按钮');
 
     // 再次检查是否已经注入过
     if (TwitterDOM.hasToolbarAIButton(dialog)) {
@@ -182,8 +176,59 @@ export class TwitterInjector {
         marginRight: '8px',
       });
 
-      // 插入到工具栏开头
-      toolbar.insertBefore(aiButtonContainer, toolbar.firstChild);
+      if (toolbar) {
+        // 标准注入：插入到工具栏开头
+        console.log('[Twitter Injector] 找到工具栏，开始注入 AI 按钮');
+        toolbar.insertBefore(aiButtonContainer, toolbar.firstChild);
+      } else {
+        // 备用方案：在回复框附近注入
+        console.warn('[Twitter Injector] 未找到工具栏，尝试备用注入方案');
+
+        // 查找回复框的父容器
+        let parent = replyBox.parentElement;
+        while (parent && parent !== dialog) {
+          // 查找包含回复框的较大容器
+          if (parent.offsetHeight > 50 && parent.offsetHeight < 300) {
+            // 创建一个浮动容器
+            Object.assign(aiButtonContainer.style, {
+              position: 'absolute',
+              bottom: '10px',
+              left: '10px',
+              zIndex: '100',
+              backgroundColor: 'rgba(255, 255, 255, 0.9)',
+              borderRadius: '20px',
+              padding: '2px',
+              boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+            });
+
+            // 设置父容器为相对定位
+            if (getComputedStyle(parent).position === 'static') {
+              parent.style.position = 'relative';
+            }
+
+            parent.appendChild(aiButtonContainer);
+            console.log('[Twitter Injector] 使用备用方案注入 AI 按钮');
+            break;
+          }
+          parent = parent.parentElement;
+        }
+
+        // 如果还是找不到合适的位置，直接插入到对话框底部
+        if (!aiButtonContainer.parentElement) {
+          Object.assign(aiButtonContainer.style, {
+            position: 'fixed',
+            bottom: '20px',
+            left: '20px',
+            zIndex: '10000',
+            backgroundColor: 'white',
+            borderRadius: '20px',
+            padding: '2px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+          });
+          dialog.appendChild(aiButtonContainer);
+          console.log('[Twitter Injector] 使用固定定位注入 AI 按钮');
+        }
+      }
 
       // 使用 React 渲染 AI 按钮
       const root = ReactDOM.createRoot(aiButtonContainer);
@@ -194,7 +239,7 @@ export class TwitterInjector {
       // 标记为已处理
       this.processedDialogs.add(dialog);
 
-      console.log('[Twitter Injector] ✅ AI 按钮已成功注入到工具栏');
+      console.log('[Twitter Injector] ✅ AI 按钮已成功注入');
     } catch (error) {
       console.error('[Twitter Injector] 注入失败:', error);
     }

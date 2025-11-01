@@ -39,6 +39,90 @@
   box-sizing: border-box;
 }
 
+/* =================================================
+   SVG 图标尺寸控制 - Twitter 注入界面
+   强制风格选择器中的 SVG 图标统一尺寸
+   ================================================= */
+
+/* 风格选择器中的所有SVG图标默认为14x14像素 */
+.twitter-ai-style-selector svg {
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 14px !important;
+  min-height: 14px !important;
+  max-width: 14px !important;
+  max-height: 14px !important;
+  flex-shrink: 0;
+  vertical-align: middle;
+  display: inline-block;
+}
+
+/* 更具体的选择器以确保覆盖所有情况 */
+.twitter-ai-style-selector button svg,
+.twitter-ai-style-selector div svg,
+.twitter-ai-style-selector p svg,
+.twitter-ai-style-selector span svg {
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 14px !important;
+  min-height: 14px !important;
+  max-width: 14px !important;
+  max-height: 14px !important;
+}
+
+/* 使用类名选择器覆盖 Tailwind 类 */
+.twitter-ai-style-selector .w-4.h-4,
+.twitter-ai-style-selector .w-3\.5.h-3\.5,
+.twitter-ai-style-selector svg.w-4.h-4,
+.twitter-ai-style-selector svg.w-3\.5.h-3\.5 {
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 14px !important;
+  min-height: 14px !important;
+  max-width: 14px !important;
+  max-height: 14px !important;
+}
+
+/* 顶部标题的图标稍大一些（16x16） */
+.twitter-ai-style-selector h3 svg {
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  min-height: 16px !important;
+  max-width: 16px !important;
+  max-height: 16px !important;
+}
+
+/* 移除任何可能的内联样式影响 */
+.twitter-ai-style-selector svg[width],
+.twitter-ai-style-selector svg[height],
+.twitter-ai-style-selector svg[style*="width"],
+.twitter-ai-style-selector svg[style*="height"] {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+/* 工具栏按钮中的AI机器人图标 */
+.twitter-ai-toolbar-container button {
+  font-size: 18px;
+}
+
+/* 确保所有 SVG 父容器不会强制改变 SVG 尺寸 */
+.twitter-ai-style-selector [class*="w-"],
+.twitter-ai-style-selector [class*="h-"] {
+  /* 重置任何可能的尺寸约束 */
+}
+
+/* 强制覆盖任何可能的 viewBox 缩放 */
+.twitter-ai-style-selector svg[viewBox] {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+/* =================================================
+   End of SVG 图标尺寸控制
+   ================================================= */
+
 /* 加载动画 */
 @keyframes spin {
   from {
@@ -46,6 +130,18 @@
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* 淡入缩放动画 - 用于下拉菜单 */
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
   }
 }
 

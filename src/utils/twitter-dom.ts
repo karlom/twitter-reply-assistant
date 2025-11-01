@@ -352,38 +352,95 @@ export class TwitterDOM {
    * 从回复弹窗中获取工具栏元素
    */
   static getToolbarFromReplyDialog(dialog: HTMLElement): HTMLElement | null {
-    // 工具栏的选择器（包含文件上传、表情等按钮）
+    // 更新的工具栏选择器策略
+    // 1. 先尝试找到回复按钮组
+    const replyButtonSelector = '[data-testid="tweetButtonInline"]';
+    const replyButton = dialog.querySelector(replyButtonSelector);
+
+    if (replyButton) {
+      // 获取回复按钮的父容器，通常这里是操作栏
+      const buttonContainer = replyButton.parentElement?.parentElement;
+      if (buttonContainer) {
+        // 查找包含多个图标按钮的同级容器（工具栏）
+        const siblings = Array.from(buttonContainer.parentElement?.children || []);
+        for (const sibling of siblings) {
+          const iconButtons = sibling.querySelectorAll('[role="button"]');
+          if (iconButtons.length >= 2) {
+            console.log('[TwitterDOM] 找到工具栏容器（策略1）');
+            return sibling as HTMLElement;
+          }
+        }
+      }
+    }
+
+    // 2. 使用 data-testid 选择器
     const toolbarSelectors = [
       '[data-testid="toolBar"]',
-      '[role="group"][aria-label]',
+      '[data-testid="tweetToolbar"]',
+      '[data-testid="replyToolbar"]',
     ];
 
     for (const selector of toolbarSelectors) {
       const toolbar = dialog.querySelector(selector) as HTMLElement;
       if (toolbar) {
-        // 验证这是包含文件上传按钮的工具栏
-        const fileInput = toolbar.querySelector('[data-testid="fileInput"]');
-        if (fileInput) {
-          return toolbar;
+        console.log(`[TwitterDOM] 找到工具栏容器（策略2: ${selector}）`);
+        return toolbar;
+      }
+    }
+
+    // 3. 查找包含 emoji 或 gif 按钮的容器
+    const emojiButton = dialog.querySelector('[data-testid="emoji"]');
+    const gifButton = dialog.querySelector('[data-testid="gif"]');
+
+    if (emojiButton || gifButton) {
+      const button = emojiButton || gifButton;
+      // 获取按钮的父容器
+      let parent = button?.parentElement;
+      while (parent && parent !== dialog) {
+        const buttons = parent.querySelectorAll('[role="button"], button');
+        if (buttons.length >= 2 && buttons.length <= 10) {
+          console.log('[TwitterDOM] 找到工具栏容器（策略3: emoji/gif父容器）');
+          return parent;
+        }
+        parent = parent.parentElement;
+      }
+    }
+
+    // 4. 查找包含文件输入的容器
+    const fileInput = dialog.querySelector('[data-testid="fileInput"]');
+    if (fileInput) {
+      let parent = fileInput.parentElement;
+      while (parent && parent !== dialog) {
+        const buttons = parent.querySelectorAll('[role="button"], button');
+        if (buttons.length >= 2 && buttons.length <= 10) {
+          console.log('[TwitterDOM] 找到工具栏容器（策略4: 文件输入父容器）');
+          return parent;
+        }
+        parent = parent.parentElement;
+      }
+    }
+
+    // 5. 最后的备用策略：查找包含多个小按钮的 div
+    const allDivs = dialog.querySelectorAll('div');
+    for (const div of allDivs) {
+      const buttons = div.querySelectorAll('[role="button"], button');
+      const directButtons = Array.from(buttons).filter(btn => btn.parentElement === div);
+      // 查找直接子元素中有 3-6 个按钮的容器
+      if (directButtons.length >= 3 && directButtons.length <= 6) {
+        // 验证这些按钮都比较小（工具栏按钮通常较小）
+        const avgWidth = directButtons.reduce((sum, btn) => {
+          const rect = (btn as HTMLElement).getBoundingClientRect();
+          return sum + rect.width;
+        }, 0) / directButtons.length;
+
+        if (avgWidth < 60) { // 工具栏按钮通常宽度小于60px
+          console.log('[TwitterDOM] 找到工具栏容器（策略5: 小按钮容器）');
+          return div as HTMLElement;
         }
       }
     }
 
-    // 如果找不到工具栏，尝试查找包含多个按钮的容器
-    const buttons = dialog.querySelectorAll('button, [role="button"]');
-    if (buttons.length > 3) {
-      // 找到按钮的共同父容器
-      const firstButton = buttons[0] as HTMLElement;
-      let container = firstButton.parentElement;
-      while (container && container !== dialog) {
-        const containerButtons = container.querySelectorAll('button, [role="button"]');
-        if (containerButtons.length >= 3) {
-          return container;
-        }
-        container = container.parentElement;
-      }
-    }
-
+    console.warn('[TwitterDOM] 未能找到工具栏容器');
     return null;
   }
 

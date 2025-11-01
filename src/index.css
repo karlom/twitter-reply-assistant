@@ -3,10 +3,194 @@
 @tailwind utilities;
 
 :root {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+
+  /* Modern Color Palette */
+  --color-primary: #3b82f6;
+  --color-primary-hover: #2563eb;
+  --color-secondary: #6b7280;
+  --color-success: #10b981;
+  --color-error: #ef4444;
+  --color-warning: #f59e0b;
+
+  /* Neutral Colors */
+  --color-bg-base: #ffffff;
+  --color-bg-subtle: #f9fafb;
+  --color-bg-muted: #f3f4f6;
+  --color-border-light: #e5e7eb;
+  --color-border-medium: #d1d5db;
+
+  /* Text Colors */
+  --color-text-primary: #111827;
+  --color-text-secondary: #6b7280;
+  --color-text-tertiary: #9ca3af;
+
+  /* Shadow System */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-base: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  /* Border Radius */
+  --radius-sm: 6px;
+  --radius-base: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 body {
   margin: 0;
   min-width: 320px;
+  background-color: var(--color-bg-subtle);
+  color: var(--color-text-primary);
+}
+
+/* Smooth scrolling */
+* {
+  scroll-behavior: smooth;
+}
+
+/* =================================================
+   SVG 图标尺寸全局控制
+   强制所有 popup 中的 SVG 图标统一为 16x16 像素
+   ================================================= */
+
+/* 默认所有SVG图标为16x16 */
+#root svg {
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  min-height: 16px !important;
+  max-width: 16px !important;
+  max-height: 16px !important;
+  flex-shrink: 0;
+}
+
+/* 顶部标题栏的logo图标稍大（24x24） */
+#root > div > div:first-child svg {
+  width: 24px !important;
+  height: 24px !important;
+  min-width: 24px !important;
+  min-height: 24px !important;
+  max-width: 24px !important;
+  max-height: 24px !important;
+}
+
+/* 加载动画保持16x16 */
+#root svg.animate-spin {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+/* 确保图标垂直对齐 */
+#root h3 svg,
+#root p svg,
+#root span svg {
+  vertical-align: middle;
+  display: inline-block;
+}
+
+/* 移除任何可能的内联样式影响 */
+#root svg[width],
+#root svg[height] {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+/* =================================================
+   End of SVG 图标尺寸控制
+   ================================================= */
+
+/* Modern button base styles */
+.modern-btn {
+  transition: all var(--transition-base);
+  border-radius: var(--radius-base);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.modern-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.modern-btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Modern card styles */
+.modern-card {
+  background: var(--color-bg-base);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border-light);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
+}
+
+.modern-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-border-medium);
+}
+
+/* Modern input styles */
+.modern-input {
+  transition: all var(--transition-base);
+  border-radius: var(--radius-base);
+  border: 1px solid var(--color-border-light);
+}
+
+.modern-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Loading spinner animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn var(--transition-base) ease-out;
+}
+
+/* Pulse animation for loading states */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
